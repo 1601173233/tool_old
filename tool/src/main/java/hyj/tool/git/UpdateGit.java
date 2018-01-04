@@ -8,19 +8,14 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 /**
  * JGit API测试
  */
-@Component
 public class UpdateGit {
 	/** 当前用户名  **/
-	@Value("${myConf.userName}")
 	private String userName;
 	/** 当前密码 **/
-	@Value("${myConf.password}")
 	private String password;
 
 	/**
@@ -56,7 +51,7 @@ public class UpdateGit {
 		// git仓库地址
 		@SuppressWarnings("resource")
 		Git git = new Git(new FileRepository(localGitPath + "/.git"));
-		
+		 
 		//获取远程更新的信息
 		git.pull().setCredentialsProvider(usernamePasswordCredentialsProvider)
 		          .call();
