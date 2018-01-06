@@ -1,10 +1,8 @@
 package hyj.tool.excel;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.Format;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -53,20 +51,20 @@ public class ExcelUtil {
 	};
 	
 	/**
-	 * 获取excel解析后的对象
-	 * @param fileName
+	 * 获取excel解析后的
+	 * @param filePath 文件的绝对路径 
 	 * @return
 	 * @throws Exception
 	 */
-	public static Workbook getWorkbook(String fileName) throws Exception {
+	public static Workbook getWorkbook(String filePath) throws Exception {
 		//获取文件的后缀名
-		String fileType = fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length());
+		String fileType = filePath.substring(filePath.lastIndexOf(".") + 1, filePath.length());
 
 		InputStream is = null;
 		Workbook workbook = null;
 		
 		try {
-			is = new FileInputStream(fileName);
+			is = new FileInputStream(filePath);
 		
 			//如果是excel2003
 			if (fileType.equals("xls")) {
@@ -102,6 +100,7 @@ public class ExcelUtil {
 	
 	/**
 	 * 获取excel的数据
+	 * 只能获取列表数据
 	 * @param sheet excel某页文件
 	 * @param paramsArray 参数的字段名
 	 * @param typeArray   参数的类型 S:字符串，F:浮点数，I:整型,D:日期,B:布尔型  ,null 默认获取字符串
