@@ -1,5 +1,10 @@
 package hyj.tool.excel;
 
+import hyj.tool.excel.ExcelUtil.Type;
+import hyj.tool.util.ObjectUtil;
+import hyj.tool.util.StringUtil;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,10 +16,6 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 
-import hyj.tool.excel.ExcelUtil.Type;
-import hyj.tool.util.ObjectUtil;
-import hyj.tool.util.StringUtil;
-
 /**
  * 
  * 根据模版语言读取excel数据 
@@ -24,12 +25,10 @@ import hyj.tool.util.StringUtil;
  */
 public class ExcelTemplateUtil {
 	public static void main(String arg[]) throws Exception {
-		Workbook workbook = ExcelUtil.getWorkbook("C:\\Users\\admin\\Desktop\\testTemplate.xls");
-		Sheet sheet = workbook.getSheetAt(0);
+	
+		Map<String, ExcelMsg> excelTemplate = readByTemplate("C:\\Users\\ken\\Desktop\\test.xls", "C:\\Users\\ken\\Desktop\\testTemplate.xls");
 		
-		ExcelTemplate excelTemplate = readExcelTemplate(sheet);
-		
-		ExcelUtil.closeWookbook(workbook);
+		System.out.println();
 	}
 	
 	/**
@@ -43,7 +42,7 @@ public class ExcelTemplateUtil {
 		Map<String, ExcelMsg> resultMap = new HashMap<String, ExcelMsg>();
 		//解析数据文件和模板文件
 		Workbook dataWorkbook = ExcelUtil.getWorkbook(filePath);
-		Workbook templateWorkbook = ExcelUtil.getWorkbook(filePath);
+		Workbook templateWorkbook = ExcelUtil.getWorkbook(templatePath);
 		int sheetSize = templateWorkbook.getNumberOfSheets();
 		
 		//循环模板文件每一页
@@ -55,7 +54,7 @@ public class ExcelTemplateUtil {
 			//根据模板sheet获取sheet的数据 
 			ExcelMsg excelMsg = getExcelMsgByTemplateSheet(dataSheet, templateSheet);
 			
-			if(ObjectUtil.isNull(excelMsg)) {
+			if(!ObjectUtil.isNull(excelMsg)) {
 				resultMap.put(sheetName, excelMsg);
 			}
 		}
@@ -68,8 +67,9 @@ public class ExcelTemplateUtil {
 	 * @param dataSheet     数据sheet
 	 * @param templateSheet 模板sheet
 	 * @return
+	 * @throws Exception 
 	 */
-	public static ExcelMsg getExcelMsgByTemplateSheet(Sheet dataSheet, Sheet templateSheet) {
+	public static ExcelMsg getExcelMsgByTemplateSheet(Sheet dataSheet, Sheet templateSheet) throws Exception {
 		//解析excel模板对象
 		ExcelTemplate excelTemplate = readExcelTemplate(templateSheet);
 		
@@ -79,8 +79,97 @@ public class ExcelTemplateUtil {
 		}
 		
 		ExcelMsg excelMsg = new ExcelMsg();
-		
+		//读取离散数据
+		excelMsg.setDiscreteDataMap(readDiscreteData(dataSheet, excelTemplate.getDiscreteCellList()));
+		//读取列表数据
+		excelMsg.setListDataMap(readLineData(dataSheet, excelTemplate.getLineCellList()));
 		return excelMsg;
+	}
+
+	/**
+	 * 读取离散数据
+	 * @param sheet            数据页
+	 * @param discreteCellList 散列模版数据映射
+	 * @return
+	 */
+	public static Map<String, Object> readDiscreteData(Sheet sheet, List<ExcelCell> discreteCellList){
+		Map<String, Object> resultMap = new HashMap<String, Object>();
+		int rowSize = sheet.getLastRowNum() + 1;
+		
+		//循环模板获取数据
+		for(ExcelCell excelCell : discreteCellList){
+			String paramsName = excelCell.getParamsName(); //字段名称
+			Type type = excelCell.getType();               //字段类型
+			int rows = excelCell.getRows();                //行数
+			int line = excelCell.getLine();                //列数
+			
+			//如果行数没有越界，那么继续，否则设置为空值
+			if(rowSize > rows){
+				//获取对应的行数据
+				Row row = sheet.getRow(rows);
+				
+				//如果这行不是空的，那么继续，否则也设置为空值
+				if(row != null){
+					// 行中有多少个单元格，也就是有多少列
+					int cellSize = row.getLastCellNum();
+					
+					//如果列数没有越界，那么就设置当前的值，否则也设置为空值
+					if(cellSize > line){
+						Cell cell = row.getCell(line);
+						
+						//设置值
+						resultMap.put(paramsName, ExcelUtil.getCellValue(cell, type));
+						continue;
+					}
+				}
+			}
+			
+			//如果上面校验不通过，那么都设为空值
+			resultMap.put(paramsName, null);
+		}
+		
+		return resultMap;
+	}
+	
+	/**
+	 * 读取列表数据
+	 * @param sheet            数据页
+	 * @param discreteCellList 列表模版数据映射
+	 * @return
+	 * @throws Exception 
+	 */
+	public static List<Map<String, Object>> readLineData(Sheet sheet, List<ExcelCell> lineCellList) throws Exception{
+		List<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>();
+		int size = lineCellList.size();
+		
+		//缓存一次性获取的数据
+		List<String> paramsNameList = new ArrayList<String>();
+		List<Type>   typeList       = new ArrayList<Type>();
+		
+		//循环每一个字段
+		for(int i = 0; i < size;i++){
+			//当前行的信息
+			ExcelCell excelCell = lineCellList.get(i);
+			
+			//设置需要获取的字段名字和类型
+			paramsNameList.add(excelCell.getParamsName());
+			typeList.add(excelCell.getType());
+			
+		}
+
+		//如果有结果
+		if(size > 0){
+			//第一行的信息
+			ExcelCell excelCell = lineCellList.get(0);
+			
+			String[] paramsNameArray = (String [])paramsNameList.toArray(new String[paramsNameList.size()]);
+			Type[]   typeArray       = (Type [])  typeList.toArray(new Type[paramsNameList.size()]);
+				
+			//获取列表数据
+			resultList = ExcelUtil.readExcelMsg(sheet, paramsNameArray, typeArray, excelCell.getLine(), excelCell.getRows());
+		}
+		
+		return resultList;
 	}
 	
 	/**

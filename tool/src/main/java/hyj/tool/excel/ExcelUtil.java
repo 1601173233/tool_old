@@ -114,6 +114,30 @@ public class ExcelUtil {
 			                                             String[] paramsArray,
 			                                             Type[]   typeArray,
 			                                             int startLine,
+			                                             int startRow) throws Exception{
+		//最大的行数
+		int rowSize = sheet.getLastRowNum();
+		
+		//直接读取到最后一行
+		return readExcelMsg(sheet, paramsArray, typeArray, startLine, startRow, rowSize);
+	}
+	
+	/**
+	 * 获取excel的数据
+	 * 只能获取列表数据
+	 * @param sheet excel某页文件
+	 * @param paramsArray 参数的字段名
+	 * @param typeArray   参数的类型 S:字符串，F:浮点数，I:整型,D:日期,B:布尔型  ,null 默认获取字符串
+	 * @param startLine   开始的列数
+	 * @param startRow    开始的行数
+	 * @param endRow      结束的行数
+	 * @return
+	 * @throws Exception 
+	 */
+	public static List<Map<String, Object>> readExcelMsg(Sheet sheet, 
+			                                             String[] paramsArray,
+			                                             Type[]   typeArray,
+			                                             int startLine,
 			                                             int startRow,
 			                                             int endRow) throws Exception{
 		List<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>();
@@ -140,8 +164,7 @@ public class ExcelUtil {
 				continue;
 			}
 			
-			// 行中有多少个单元格，也就是有多少列
-			int cellSize = row.getLastCellNum();
+			//循环对应的字段获取数据
 			for (int j = startLine; j < endLine; j++) {
 				int index = j - startLine;
 				Cell cell = row.getCell(j);
@@ -154,7 +177,7 @@ public class ExcelUtil {
 			}
 			
 			//初始化剩余的数据
-			initMapNull(map, paramsArray, cellSize);
+			initMapNull(map, paramsArray, endLine - startLine);
 		}
 		
 		return resultList;
