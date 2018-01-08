@@ -24,13 +24,6 @@ import org.apache.poi.ss.usermodel.Workbook;
  * @version V1.0
  */
 public class ExcelTemplateUtil {
-	public static void main(String arg[]) throws Exception {
-	
-		Map<String, ExcelMsg> excelTemplate = readByTemplate("C:\\Users\\ken\\Desktop\\test.xls", "C:\\Users\\ken\\Desktop\\testTemplate.xls");
-		
-		System.out.println();
-	}
-	
 	/**
 	 * 通过excel模板获取数据
 	 * @param filePath     excel文件地址

@@ -9,7 +9,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.jxls.exception.ParsePropertyException;
+import net.sf.jxls.transformer.XLSTransformer;
+
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -23,18 +27,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
  * @version V1.0
  */
 public class ExcelUtil {
-	public static void main(String arg[]) throws Exception {
-		Workbook workbook = getWorkbook("C:\\Users\\admin\\Desktop\\test.xls");
-		Sheet sheet = workbook.getSheetAt(0);
-		
-		String[] paramsArray = {"姓名","性别","年龄","出生","数字","浮点数","布尔类型"};
-		Type[] typeArray = {Type.S,Type.S,Type.S,Type.S,Type.I,Type.F,Type.B};
-		
-		List<Map<String,Object>> resultList = readExcelMsg(sheet, paramsArray, typeArray, 0, 10, 100);
-		
-		closeWookbook(workbook);
-	}
-	
 	/**
 	 * Excel 导入类型  
 	 * @author hyj     
@@ -382,4 +374,21 @@ public class ExcelUtil {
 		}
 		
 	}
+	
+    /** 
+     * 根据模板生成Excel文件. 
+     * @param paramsMap        模板中存放的数据. 
+     * @param templateFilePath 模板地址 
+     * @param resultFilePath   生成的文件地址
+     * @throws InvalidFormatException 
+     * @throws IOException 
+     * @throws ParsePropertyException 
+     */  
+    public static void createExcel(Map<String, Object> paramsMap, String templateFilePath, String resultFilePath) throws InvalidFormatException, ParsePropertyException, IOException{  
+        //创建XLSTransformer对象  
+        XLSTransformer transformer = new XLSTransformer();  
+
+        //生成Excel文件  
+        transformer.transformXLS(templateFilePath, paramsMap, resultFilePath);
+    }  
 }
