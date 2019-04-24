@@ -1,5 +1,6 @@
-package hyj.tool.excel;
+package com.suntek.common.util;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,9 +9,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import net.sf.jxls.exception.ParsePropertyException;
-import net.sf.jxls.transformer.XLSTransformer;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -41,6 +39,43 @@ public class ExcelUtil {
 		B,//布尔型
 		NULL//空类型，默认获取字符串
 	};
+
+	/**
+	 * 获取excel解析后的
+	 *
+	 * @param is 文件流对象
+	 * @param fileType 文件后缀
+	 * @return
+	 * @throws Exception
+	 */
+	public static Workbook getWorkbook(InputStream is, String fileType) throws Exception {
+		Workbook workbook = null;
+
+		// 如果是excel2003
+		if (fileType.equals("xls")) {
+			workbook = new HSSFWorkbook(is);
+			// 如果是excel2007
+		} else if (fileType.equals("xlsx")) {
+			workbook = new XSSFWorkbook(is);
+		} else {
+			throw new Exception("读取的不是excel文件");
+		}
+
+		return workbook;
+	}
+
+	/**
+	 * 获取excel解析后的
+	 *
+	 * @param file 文件对象
+	 * @return
+	 * @throws Exception
+	 */
+	public static Workbook getWorkbook(File file) throws Exception {
+		String fileName = file.getName();
+		String fileType = fileName.substring(fileName.lastIndexOf(".") + 1);
+		return getWorkbook(new FileInputStream(file), fileType);
+	}
 	
 	/**
 	 * 获取excel解析后的
@@ -57,16 +92,8 @@ public class ExcelUtil {
 		
 		try {
 			is = new FileInputStream(filePath);
-		
-			//如果是excel2003
-			if (fileType.equals("xls")) {
-				workbook = new HSSFWorkbook(is);
-			//如果是excel2007
-			} else if (fileType.equals("xlsx")) {
-				workbook = new XSSFWorkbook(is);
-			} else {
-				throw new Exception("读取的不是excel文件");
-			}
+
+			workbook = getWorkbook(is, fileType);
 		}catch (Exception e) {
 			throw e;
 		}finally {
@@ -98,7 +125,6 @@ public class ExcelUtil {
 	 * @param typeArray   参数的类型 S:字符串，F:浮点数，I:整型,D:日期,B:布尔型  ,null 默认获取字符串
 	 * @param startLine   开始的列数
 	 * @param startRow    开始的行数
-	 * @param endRow      结束的行数
 	 * @return
 	 * @throws Exception 
 	 */
@@ -374,21 +400,4 @@ public class ExcelUtil {
 		}
 		
 	}
-	
-    /** 
-     * 根据模板生成Excel文件. 
-     * @param paramsMap        模板中存放的数据. 
-     * @param templateFilePath 模板地址 
-     * @param resultFilePath   生成的文件地址
-     * @throws InvalidFormatException 
-     * @throws IOException 
-     * @throws ParsePropertyException 
-     */  
-    public static void createExcel(Map<String, Object> paramsMap, String templateFilePath, String resultFilePath) throws InvalidFormatException, ParsePropertyException, IOException{  
-        //创建XLSTransformer对象  
-        XLSTransformer transformer = new XLSTransformer();  
-
-        //生成Excel文件  
-        transformer.transformXLS(templateFilePath, paramsMap, resultFilePath);
-    }  
 }
