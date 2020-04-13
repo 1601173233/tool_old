@@ -27,7 +27,7 @@ public class DataCreate {
                 stringBuilder.append(",").append("\r\n");
             }
         }
-        stringBuilder.append("\r\n]");
+        stringBuilder.append("]");
 
         TextIo.outPut(outPath, stringBuilder.toString());
 

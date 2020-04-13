@@ -1,0 +1,9 @@
+{
+    "id": ${id},
+    "msg": {
+        "name": ${name},
+        "phone": ${phone},
+        "string": ${string},
+        "date": ${date}
+    }
+}
