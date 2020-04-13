@@ -1,18 +1,16 @@
 package hyj.tool.excel;
 
 import hyj.tool.excel.ExcelUtil.Type;
+import net.sf.jxls.exception.ParsePropertyException;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import net.sf.jxls.exception.ParsePropertyException;
-
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
 /**
  * 
  * @Description: excel工具类 
@@ -57,7 +55,7 @@ public class ExcelUtilTest {
 		list.add(map);
 		
 		paramsMap.put("list", list);
-		ExcelUtil.createExcel(paramsMap, "src\\main\\resources\\excel\\export.xls", "C:\\Users\\ken\\Desktop\\1.xls");
+//		ExcelUtil.createExcel(paramsMap, "src\\main\\resources\\excel\\export.xls", "C:\\Users\\ken\\Desktop\\1.xls");
 		
 	}
 }

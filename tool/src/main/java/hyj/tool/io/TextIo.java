@@ -1,9 +1,6 @@
 package hyj.tool.io;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 
 /**
  * 文件读写io
@@ -54,6 +51,30 @@ public class TextIo {
 		
 		fileio.close();
 		return result;
+	}
+
+	/**
+	 * 输出数据到文件
+	 * @param outFilePath
+	 * @param data
+	 */
+	public static void outPut(String outFilePath, String data){
+		FileWriter out = null;
+		try {
+			// 通过一个文件输出流，就可以写到相应的文件中
+			out = new FileWriter(new File(outFilePath));
+			out.append(data);
+			out.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (out != null)
+					out.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 }
 
